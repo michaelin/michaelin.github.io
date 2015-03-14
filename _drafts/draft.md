@@ -1,3 +1,4 @@
 ---
+layout: post
+title: a title
 ---
-This is a draft post
