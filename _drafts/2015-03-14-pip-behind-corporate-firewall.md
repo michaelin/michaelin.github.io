@@ -12,13 +12,33 @@ How SSL intercepting firewalls work
 The root of the problem is pretty well explained in the answer to [this question on Stack Exchange][3]. Some companies have firewalls that replace the server certificates used in https communication with self signed variants. When an SSL or TSL handshake is being negotiated with a server, the proxy intercepts the server certificate and replaces it with a self signed certificate. This way, the communication between the client and the proxy is made with a server certificate that is owned by the proxy operator, while the communication between the proxy and the server is made using the original server certificate.
 The proxy can decrypt the data sent from the client using the proxy certificate, and re-encrypts its own certificate before it is sent to the server. Likewise, the response can be decrypted by the proxy, reencrypted using its own certificate and then forwarded to the client. [ZDNet has a good article on the subject too][4].
 
-Installing `pip`
+Configuring EPEL
 ================
 
-I needed to experiment with Fabric
-This can only work if the client trusts the certificate the proxy uses to encrypt the
+I needed to experiment with Fabric at work, and was blisfully unaware of the SSL issue I was about to run into. Since `pip` was not in the default `yum` repository, I needed to add the EPEL repository. The method I chose was to install it using yum.
 
+```bash
+yum install epel-release
+```
 
+The process was smooth, and I could immediately use the repository. But when I tried to install `pip` with the command `gem install pip`, I got an error message.
+
+```bash
+aded plugins: fastestmirror, protectbase, security
+Loading mirror speeds from cached hostfile
+Error: Cannot retrieve metalink for repository: epel. Please verify its path and try again
+```
+
+A bit of digging suggested that the problem was outdated ssl root certificates, and that it could be fixed using the command `yum reinstall ca-certificates`. The command was successful, but I still got the same error message. I tried manually retrieving a new certificate bundle.
+
+```bash
+cp /etc/pki/tls/certs/ca-bundle.crt /etc/pki/tls/certs/ca-bundle.crt.bak
+curl http://curl.haxx.se/ca/cacert.pem -o /etc/pki/tls/certs/ca-bundle.crt
+```
+
+This didn't help either. After a while I gave up, and fixed the yum repository paths to use http instead of https. This is done by changing the `mirrorlist` parameters in `/etc/yum.repos.d/epel.repo`.
+
+Note that this is *not* a good idea.
 
 
 [1]: http://www.fabfile.org/
