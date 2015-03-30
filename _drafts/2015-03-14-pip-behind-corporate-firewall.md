@@ -23,7 +23,7 @@ yum install epel-release
 
 The process was smooth, and I could immediately use the repository. But when I tried to install `pip` with the command `gem install pip`, I got an error message.
 
-```bash
+```
 aded plugins: fastestmirror, protectbase, security
 Loading mirror speeds from cached hostfile
 Error: Cannot retrieve metalink for repository: epel. Please verify its path and try again
@@ -48,12 +48,7 @@ Having installed `pip` it was jus a question of installing `fabric`. I entered t
 Downloading/unpacking fabric
   Could not fetch URL https://pypi.python.org/simple/fabric/: There was a problem confirming the ssl certificate: <urlopen error [Errno 1] _ssl.c:492: error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed>
   Will skip URL https://pypi.python.org/simple/fabric/ when looking for download links for fabric
-  Could not fetch URL https://pypi.python.org/simple/: There was a problem confirming the ssl certificate: <urlopen error [Errno 1] _ssl.c:492: error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed>
-  Will skip URL https://pypi.python.org/simple/ when looking for download links for fabric
-  Cannot fetch index base URL https://pypi.python.org/simple/
-  Could not fetch URL https://pypi.python.org/simple/fabric/: There was a problem confirming the ssl certificate: <urlopen error [Errno 1] _ssl.c:492: error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed>
-  Will skip URL https://pypi.python.org/simple/fabric/ when looking for download links for fabric
-  Could not find any downloads that satisfy the requirement fabric
+  ...
 No distributions at all found for fabric
 Storing complete log in /root/.pip/pip.log
 ```
@@ -110,6 +105,7 @@ SSL-Session:
     Verify return code: 0 (ok)
 ---
 ```
+
 This long blurp tells us that the server identifies itself with a certificate owned by Python Software Foundation, and that the certificate is issued by DigiCert (issuer=/C=US/O=DigiCert Inc/OU=www.digicert.com/CN=DigiCert SHA2 Extended Validation Server CA).
 
 But when I ran it from my VM at work, the result was a bit different:
@@ -171,9 +167,22 @@ FceHmpqlkA2AvjdvSvwnODux3QPbMucIaJXrUUwf
 Updating the trusted certificate stores
 =======================================
 
-Now that I had the certificates,
+Now that I had the certificates, I needed to add them to the machines list of trusted certificates. It turned out that there are two of these: One for the operating system, and a separate one for `pip`.
+
+To add the certificate to the CentOS SSL CA certificate bundle, you need to modify `/etc/pki/tls/certs/ca-bundle.crt`.
+It can be done by hand, but a more secure way to do it is to store the individual certificates in `/etc/pki/ca-trust/source/anchors/` and then run
+
+```
+update-ca-trust enable
+update-ca-trust extract
+```
+
+[The process is different][5] depending on which operating system your are using.
+
+
 
 [1]: http://www.fabfile.org/
 [2]: https://fedoraproject.org/wiki/EPEL
 [3]: http://security.stackexchange.com/questions/3778/getting-self-signed-ssl-certificates-for-all-https-connections-made-from-some-pr
 [4]: http://www.zdnet.com/article/how-the-nsa-and-your-boss-can-intercept-and-break-ssl/
+[5]: http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html
