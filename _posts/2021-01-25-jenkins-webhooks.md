@@ -1,6 +1,9 @@
 ---
-layout: post
+layout: single
 title: Using Jenkins webhooks
+tags:
+  - Jenkins
+  - Getting started
 ---
 
 It is possible to trigger builds in Jenkins by calling specific endpoints on the Jenkins server. This makes it possible for other servers to trigger builds of specific projects on your server.
@@ -9,15 +12,15 @@ It is possible to trigger builds in Jenkins by calling specific endpoints on the
 
 - Configure a unique token for the Jenkins build
   - Configure job.
-  - Enable *Trigger builds remotely*.
-  - Enter a long, random character sequence in the *Authentication Token* field.
+  - Enable _Trigger builds remotely_.
+  - Enter a long, random character sequence in the _Authentication Token_ field.
     - You can use the password generator in your favorite password manager or on [random.org](https://www.random.org/passwords/?num=2&len=16&format=html&rnd=new).
     - The token should be unique for each job.
   - Remember to save.
 
 Trigger the build by calling the following url with curl from a terminal or using your browser:
 
-```bash
+```text
 https://<JENKINS_URL>/job/<JOB_NAME>/build?token=<AUTHENTICATION_TOKEN>
 ```
 
@@ -31,7 +34,7 @@ The main issue with this option is that it requires `anonymous` users to have fu
 
 Trigger the build on the following url:
 
-```
+```text
 https://<JENKINS_URL>/buildByToken/build?job=<JOB_NAME>&token=<AUTHENTICATION_TOKEN>
 ```
 
